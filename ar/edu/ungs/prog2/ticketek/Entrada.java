@@ -10,6 +10,8 @@ public class Entrada implements IEntrada {
     private int nroAsiento;
     private double precio;
     private boolean valido;
+    private static int contador = 1; // ID global y único para todas las entradas
+    private int id;
 
     public Entrada(String nombreEspectaculo, String fecha, String sede, String sector, int nroAsiento, double precio) {
         this.nombreEspectaculo = nombreEspectaculo;
@@ -19,6 +21,7 @@ public class Entrada implements IEntrada {
         this.nroAsiento = nroAsiento;
         this.precio = precio;
         this.valido = true;
+        this.id = contador++; // Asigna un ID único automáticamente
     }
 
     @Override
@@ -30,6 +33,10 @@ public class Entrada implements IEntrada {
     public String ubicacion() {
         return sede + (sector != null && !sector.isEmpty() ? " - " + sector : "") +
                (nroAsiento > 0 ? " Asiento: " + nroAsiento : "");
+    }
+
+    public int getId() {
+        return id;
     }
 
     @Override

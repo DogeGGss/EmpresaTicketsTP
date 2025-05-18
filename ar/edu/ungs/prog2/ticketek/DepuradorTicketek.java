@@ -27,7 +27,7 @@ public class DepuradorTicketek {
                 Espectaculo esp = entry.getValue();
                 System.out.println("Espectáculo: " + esp.getNombre() + " (código: " + esp.getCodigoEspectaculo() + ")");
                 for (Funcion f : esp.getFunciones().values()) {
-                    System.out.println("  Funcion: " + f.getFecha() + " - " + f.getSede() + " - Precio base: " + f.getPrecioBase());
+                    System.out.println("  Funcion: " + f.getFecha() + " - " + f.getNombreSede() + " - Precio base: " + f.getPrecioBase());
                 }
             }
 

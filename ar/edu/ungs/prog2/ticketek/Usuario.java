@@ -1,21 +1,23 @@
 package ar.edu.ungs.prog2.ticketek;
 
-import java.util.List;
-import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collection;
 
 public class Usuario {
     private String email;
     private String nombre;
     private String apellido;
     private String contrasenia;
-    private List<IEntrada> entradas;
+    private Map<Integer, IEntrada> entradas; // Map de id a entrada
+    
 
     public Usuario(String email, String nombre, String apellido, String contrasenia) {
         this.email = email;
         this.nombre = nombre;
         this.apellido = apellido;
         this.contrasenia = contrasenia;
-        this.entradas = new ArrayList<>();
+        this.entradas = new HashMap<>();
     }
 
     public String getEmail() {
@@ -34,15 +36,22 @@ public class Usuario {
         return contrasenia;
     }
 
-    public List<IEntrada> getEntradas() {
-        return entradas;
+    public Collection<IEntrada> getEntradas() {
+        return entradas.values();
     }
 
     public void agregarEntrada(IEntrada entrada) {
-        entradas.add(entrada);
+        if (entrada instanceof Entrada) {
+            entradas.put(((Entrada)entrada).getId(), entrada);
+        }
+    }
+
+    public IEntrada getEntradaPorId(int id) {
+        return entradas.get(id);
     }
 
     public boolean validarContrasenia(String contrasenia) {
         return this.contrasenia.equals(contrasenia);
     }
+
 }

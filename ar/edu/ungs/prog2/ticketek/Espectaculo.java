@@ -6,7 +6,8 @@ import java.util.Map;
 public class Espectaculo {
     private String nombre;
     private int codigoEspectaculo;
-    private Map<String, Funcion> funciones; // clave: fecha
+    private HashMap<String, Funcion> funciones; // clave: fecha
+    private HashMap<String, Integer> recaudacionesPorSede;
 
     public Espectaculo(String nombre, int codigoEspectaculo) {
         this.nombre = nombre;
@@ -16,7 +17,7 @@ public class Espectaculo {
 
     public boolean tieneFuncionEnSedeYFecha(String sede, String fecha) {
         for (Funcion f : funciones.values()) {
-            if (f.getSede().equalsIgnoreCase(sede) && f.getFecha().equals(fecha)) {
+            if (f.getNombreSede().equalsIgnoreCase(sede) && f.getFecha().equals(fecha)) {
                 return true;
             }
         }
@@ -39,6 +40,6 @@ public class Espectaculo {
         if (funciones.containsKey(fecha)) {
             throw new RuntimeException("Ya existe una función para ese espectáculo en esa fecha");
         }
-        funciones.put(fecha, new Funcion(this.nombre, fecha, sede.getNombre(), precioBase));
+        funciones.put(fecha, new Funcion(this.nombre,this.codigoEspectaculo, fecha, sede.getNombre(), precioBase));
     }
 }
