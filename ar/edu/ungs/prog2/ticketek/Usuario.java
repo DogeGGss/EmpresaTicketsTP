@@ -1,7 +1,7 @@
 package ar.edu.ungs.prog2.ticketek;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 public class Usuario {
     private String email;
@@ -15,7 +15,7 @@ public class Usuario {
         this.nombre = nombre;
         this.apellido = apellido;
         this.contrasenia = contrasenia;
-       
+        this.entradas = new ArrayList<>();
     }
 
     public String getEmail() {

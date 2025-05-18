@@ -6,7 +6,11 @@ import java.util.HashMap;
 
 public class Ticketek implements ITicketek {
 
+    private Map<String, Usuario> usuarios = new HashMap<>(); 
     private Map<String, Sede> sedes = new HashMap<>();
+    private Map<String, Espectaculo> espectaculos = new HashMap<>();
+    private int proximoCodigoEspectaculo = 1; 
+
 
     public Ticketek() {
         // Constructor: inicializar estructuras de datos internas si es necesario
@@ -79,53 +83,205 @@ public class Ticketek implements ITicketek {
 
     @Override
     public void registrarUsuario(String email, String nombre, String apellido, String contrasenia) {
-        // TODO: Implementar
+        if (email == null || !email.contains("@"))
+            throw new RuntimeException("Email inválido");
+        if (usuarios.containsKey(email))
+            throw new RuntimeException("El email ya está registrado");
+        if (nombre == null || nombre.isEmpty())
+            throw new RuntimeException("Nombre inválido");
+        if (apellido == null || apellido.isEmpty())
+            throw new RuntimeException("Apellido inválido");
+        if (contrasenia == null || contrasenia.length() < 3)
+            throw new RuntimeException("Contraseña inválida");
+        usuarios.put(email, new Usuario(email, nombre, apellido, contrasenia));
     }
 
     @Override
     public void registrarEspectaculo(String nombre) {
-        // TODO: Implementar
+        if (nombre == null || nombre.trim().isEmpty())
+            throw new RuntimeException("Nombre de espectáculo inválido");
+        if (espectaculos.containsKey(nombre))
+            throw new RuntimeException("El nombre del espectáculo ya está registrado");
+        espectaculos.put(nombre, new Espectaculo(nombre, proximoCodigoEspectaculo++));
     }
 
     @Override
     public void agregarFuncion(String nombreEspectaculo, String fecha, String sede, double precioBase) {
-        // TODO: Implementar
+        if (!espectaculos.containsKey(nombreEspectaculo))
+            throw new RuntimeException("El espectáculo no está registrado");
+        if (fecha == null || fecha.trim().isEmpty())
+            throw new RuntimeException("Fecha inválida");
+        if (sede == null || sede.trim().isEmpty() || !sedes.containsKey(sede))
+            throw new RuntimeException("Sede inválida");
+        if (precioBase < 0)
+            throw new RuntimeException("Precio base inválido");
+
+        Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
+
+        // Verifica que no haya otra función en la misma fecha para este espectáculo (sin importar la sede)
+        for (Funcion f : espectaculo.getFunciones().values()) {
+            if (f.getFecha().equals(fecha)) {
+                throw new RuntimeException("Ya existe una función para ese espectáculo en esa fecha");
+            }
+        }
+
+        espectaculo.crearFuncion(fecha, sedes.get(sede), precioBase);
     }
 
     @Override
     public List<IEntrada> venderEntrada(String nombreEspectaculo, String fecha, String email, String contrasenia, int cantidadEntradas) {
-        // TODO: Implementar
-        return null;
+        if (!usuarios.containsKey(email))
+            throw new RuntimeException("El usuario no está registrado");
+        Usuario usuario = usuarios.get(email);
+        if (!usuario.validarContrasenia(contrasenia))
+            throw new RuntimeException("Contraseña inválida");
+        if (!espectaculos.containsKey(nombreEspectaculo))
+            throw new RuntimeException("El espectáculo no está registrado");
+        Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
+        Funcion funcion = espectaculo.getFunciones().get(fecha);
+        if (funcion == null)
+            throw new RuntimeException("No existe la función para esa fecha");
+        Sede sede = sedes.get(funcion.getSede());
+        if (!(sede instanceof Estadio))
+            throw new RuntimeException("La sede no es un estadio");
+
+        List<IEntrada> vendidas = new java.util.ArrayList<>();
+        for (int i = 0; i < cantidadEntradas; i++) {
+            Entrada entrada = new Entrada(nombreEspectaculo, fecha, funcion.getSede(), null, 0, funcion.getPrecioBase());
+            usuario.agregarEntrada(entrada);
+            vendidas.add(entrada);
+        }
+        return vendidas;
     }
 
     @Override
     public List<IEntrada> venderEntrada(String nombreEspectaculo, String fecha, String email, String contrasenia, String sector, int[] asientos) {
-        // TODO: Implementar
-        return null;
+        if (!usuarios.containsKey(email))
+            throw new RuntimeException("El usuario no está registrado");
+        Usuario usuario = usuarios.get(email);
+        if (!usuario.validarContrasenia(contrasenia))
+            throw new RuntimeException("Contraseña inválida");
+        if (!espectaculos.containsKey(nombreEspectaculo))
+            throw new RuntimeException("El espectáculo no está registrado");
+        Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
+        Funcion funcion = espectaculo.getFunciones().get(fecha);
+        if (funcion == null)
+            throw new RuntimeException("No existe la función para esa fecha");
+        Sede sede = sedes.get(funcion.getSede());
+        if (!(sede instanceof SedeConPlatea))
+            throw new RuntimeException("La sede no es numerada");
+
+        List<IEntrada> vendidas = new java.util.ArrayList<>();
+        for (int nroAsiento : asientos) {
+            Entrada entrada = new Entrada(nombreEspectaculo, fecha, funcion.getSede(), sector, nroAsiento, funcion.getPrecioBase());
+            usuario.agregarEntrada(entrada);
+            vendidas.add(entrada);
+        }
+        return vendidas;
     }
 
     @Override
     public String listarFunciones(String nombreEspectaculo) {
-        // TODO: Implementar
-        return null;
+        if (!espectaculos.containsKey(nombreEspectaculo))
+            throw new RuntimeException("El espectáculo no está registrado");
+
+        Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
+        StringBuilder sb = new StringBuilder();
+
+        for (Funcion funcion : espectaculo.getFunciones().values()) {
+            String nombreSede = funcion.getSede();
+            String fecha = funcion.getFecha();
+            Sede sede = sedes.get(nombreSede);
+
+            if (sede instanceof SedeConPlatea) {
+                SedeConPlatea scp = (SedeConPlatea) sede;
+                String[] sectores = scp.getSectores();
+                int[] capacidades = scp.getCapacidades();
+                sb.append(" - (").append(fecha).append(") ").append(nombreSede).append(" - ");
+                for (int i = 0; i < sectores.length; i++) {
+                    int vendidas = 0;
+                    for (Usuario usuario : usuarios.values()) {
+                        for (IEntrada entrada : usuario.getEntradas()) {
+                            if (entrada instanceof Entrada) {
+                                Entrada e = (Entrada) entrada;
+                                if (e.getNombreEspectaculo().equals(nombreEspectaculo)
+                                        && e.getFecha().equals(fecha)
+                                        && e.getSede().equals(nombreSede)
+                                        && sectores[i].equals(e.getSector())
+                                        && e.isValido()) {
+                                    vendidas++;
+                                }
+                            }
+                        }
+                    }
+                    sb.append(sectores[i]).append(": ").append(vendidas).append("/").append(capacidades[i]);
+                    if (i < sectores.length - 1) sb.append(" | ");
+                }
+                sb.append("\n");
+            } else if (sede instanceof Estadio) {
+                int vendidas = 0;
+                for (Usuario usuario : usuarios.values()) {
+                    for (IEntrada entrada : usuario.getEntradas()) {
+                        if (entrada instanceof Entrada) {
+                            Entrada e = (Entrada) entrada;
+                            if (e.getNombreEspectaculo().equals(nombreEspectaculo)
+                                    && e.getFecha().equals(fecha)
+                                    && e.getSede().equals(nombreSede)
+                                    && e.isValido()) {
+                                vendidas++;
+                            }
+                        }
+                    }
+                }
+                sb.append(" - (").append(fecha).append(") ").append(nombreSede)
+                .append(" - ").append(vendidas).append("/").append(sede.getCapacidadMaxima()).append("\n");
+            }
+        }
+        return sb.toString();
     }
 
     @Override
     public List<IEntrada> listarEntradasEspectaculo(String nombreEspectaculo) {
-        // TODO: Implementar
-        return null;
+        List<IEntrada> resultado = new java.util.ArrayList<>();
+        for (Usuario usuario : usuarios.values()) {
+            for (IEntrada entrada : usuario.getEntradas()) {
+                if (entrada instanceof Entrada) {
+                    Entrada e = (Entrada) entrada;
+                    if (e.getNombreEspectaculo().equals(nombreEspectaculo)) {
+                        resultado.add(e);
+                    }
+                }
+            }
+        }
+        return resultado;
     }
     
     @Override
     public List<IEntrada> listarEntradasFuturas(String email, String contrasenia) {
-        // TODO: Implementar
-        return null;
+        if (!usuarios.containsKey(email))
+            throw new RuntimeException("El usuario no está registrado");
+        Usuario usuario = usuarios.get(email);
+        if (!usuario.validarContrasenia(contrasenia))
+            throw new RuntimeException("Contraseña inválida");
+
+        List<IEntrada> futuras = new java.util.ArrayList<>();
+        for (IEntrada entrada : usuario.getEntradas()) {
+            if (entrada instanceof Entrada && ((Entrada) entrada).esFutura()) {
+                futuras.add(entrada);
+            }
+        }
+        return futuras;
     }
 
     @Override
     public List<IEntrada> listarTodasLasEntradasDelUsuario(String email, String contrasenia) {
-        // TODO: Implementar
-        return null;
+        if (!usuarios.containsKey(email))
+            throw new RuntimeException("El usuario no está registrado");
+        Usuario usuario = usuarios.get(email);
+        if (!usuario.validarContrasenia(contrasenia))
+            throw new RuntimeException("Contraseña inválida");
+
+        return new java.util.ArrayList<>(usuario.getEntradas());
     }
 
     @Override
@@ -169,4 +325,21 @@ public class Ticketek implements ITicketek {
         // TODO: Implementar
         return 0;
     }
+
+    //borrar despues IMPORTANTE
+
+    public Map<String, Usuario> getUsuarios() {
+        return usuarios;
+    }
+
+    public Map<String, Espectaculo> getEspectaculos() {
+        return espectaculos;
+    }
+
+    public Map<String, Sede> getSedes() {
+        return sedes;
+    }
+
+
+
 }

@@ -1,0 +1,11 @@
+hay un problema con nuestra logica de crear espectaculos y con la interfas, con la interfaz solo se pasa el nombre del espectaculo de parametro, no el codigo
+por lo que podemos crear un diccionario usando el codigo porque no existe, nunca lo damos o lo creamos, por lo que el diccionario tiene que ser string
+
+
+antes usabamos un diccionario en la clase Espectaculo donde la clave usando el nombre de la sede como clave
+
+
+esta mal porque un espectáculo puede tener varias funciones en la misma sede, pero en fechas distintas.
+Si usamos la sede como clave, solo podemos guardar una funcion por sede, si agregás otra función en la misma sede (pero en otra fecha), la anterior se pisa y se pierde.
+
+La clave del diccionario debe ser la fecha, ya la cambie,

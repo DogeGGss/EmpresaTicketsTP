@@ -1,0 +1,2 @@
+hay un problema con nuestra logica de crear espectaculos y con la interfas, con la interfaz solo se pasa el nombre del espectaculo de parametro, no el codigo
+por lo que podemos crear un diccionario usando el codigo porque no existe, nunca lo damos o lo creamos, por lo que el diccionario tiene que ser string
