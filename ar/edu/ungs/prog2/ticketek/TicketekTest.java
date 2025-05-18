@@ -6,13 +6,13 @@ import org.junit.runners.MethodSorters;
 import static org.junit.Assert.*;
 
 import java.util.LinkedList;
-import java.util.List;
+import java.util.List;  
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TicketekTest{
 
     private ITicketek ticketek;
-    private String[] sectores_teatro = {"VIP", "Comun", "Baja", "Alta"};
+    private String[] sectores_teatro = {"VIP", "Comun", "Baja", "Alta"};        
     private int[] capacidad_teatro = {100, 200, 300, 400};
     private int[] capacidad_miniestadio = {50, 100, 150, 200};
     private int[] porcentajeAdicionalTeatro = {70, 40, 50, 0};
