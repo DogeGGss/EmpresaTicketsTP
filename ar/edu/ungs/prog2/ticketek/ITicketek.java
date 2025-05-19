@@ -33,7 +33,8 @@ public interface ITicketek {
      * @param capacidad
      * @param porcentajeAdicional
      */
-    void registrarSede(String nombre, String direccion, int capacidadMaxima, int asientosPorFila, String[] sectores, int[] capacidad, int[] porcentajeAdicional);
+    void registrarSede(String nombre, String direccion, int capacidadMaxima, int asientosPorFila, String[] sectores, 
+    int[] capacidad, int[] porcentajeAdicional);
     
     /**
      * 1) Registra las sedes con asientos y puestos de venta, miniestadios.
@@ -53,7 +54,8 @@ public interface ITicketek {
      * @param capacidad
      * @param porcentajeAdicional
      */
-    void registrarSede(String nombre, String direccion, int capacidadMaxima, int asientosPorFila, int cantidadPuestos, double precioConsumicion, String[] sectores, int[] capacidad, int[] porcentajeAdicional);
+    void registrarSede(String nombre, String direccion, int capacidadMaxima, int asientosPorFila,
+     int cantidadPuestos, double precioConsumicion, String[] sectores, int[] capacidad, int[] porcentajeAdicional);
   
   
     /**

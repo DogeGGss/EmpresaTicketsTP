@@ -23,7 +23,7 @@ estas funciones solo piden la contrasenia, pero no el mail. esta bien eso?? preg
 
 preguntar si tenemos que crear la clase fecha, lo hardcodeamos, o importamos.
     
-    anular entrada es todo O(1), menos esto. que hacemos? equals es O(1)?
-    public boolean validarContrasenia(String contrasenia) {
-        return this.contrasenia.equals(contrasenia);
-    }
+
+para estadios... cual es el precio final? (precioBase y precioUnico) Tambien revisar que el registrar sedes esta mezclado 
+
+el porcentaje que se ingresa como es? (70% o 170%)

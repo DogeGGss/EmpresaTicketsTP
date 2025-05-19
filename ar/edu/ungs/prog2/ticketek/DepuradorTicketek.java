@@ -51,8 +51,29 @@ public class DepuradorTicketek {
         }
 
         System.out.println("----- FIN DEPURACION TICKETEK -----");
+        
+        
+    if (ticketek instanceof Ticketek) {
+        Ticketek t = (Ticketek) ticketek;
+        System.out.println("\nPorcentajes adicionales de las SedeConPlatea:");
+        for (Map.Entry<String, Sede> entry : t.getSedes().entrySet()) {
+            Sede s = entry.getValue();
+            if (s instanceof SedeConPlatea) {
+                SedeConPlatea scp = (SedeConPlatea) s;
+                System.out.print("Sede: " + scp.getNombre() + " - Porcentajes: ");
+                for (int porcentaje : scp.porcentajeAdicional) {
+                    System.out.print(porcentaje + " ");
+                    System.out.println("................................");
+                    System.out.println(scp.sectores[3]);
+                    System.out.println("................................");
+                }
+                System.out.println();
+            }
+        }
     }
+
+}
+}
 
 
     //podemos agregar más métodos de depuración aquí si es necesario para comprobar muchas mas cosas
-}
