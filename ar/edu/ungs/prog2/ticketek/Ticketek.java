@@ -228,6 +228,7 @@ public class Ticketek implements ITicketek {
     @Override
     public List<IEntrada> listarEntradasFuturas(String email, String contrasenia) {
         
+        //Validaciones
         usuarioValido(email, contrasenia);
 
         Usuario usuario = usuarios.get(email);
@@ -243,6 +244,7 @@ public class Ticketek implements ITicketek {
     @Override
     public List<IEntrada> listarTodasLasEntradasDelUsuario(String email, String contrasenia) {
         
+        //Validaciones
         usuarioValido(email, contrasenia);
         
         Usuario usuario = usuarios.get(email);
@@ -251,9 +253,11 @@ public class Ticketek implements ITicketek {
 
     @Override
     public boolean anularEntrada(IEntrada entrada, String contrasenia) {
+        
         //Validaciones
         entradaValida(entrada);
         existeEntrada(entrada);
+
         Entrada entradaActual = (Entrada) entrada;
         Usuario usuario = entradaAUsuario.get(entradaActual.getId());
         
@@ -267,12 +271,13 @@ public class Ticketek implements ITicketek {
 
     @Override
     public IEntrada cambiarEntrada(IEntrada entrada, String contrasenia, String fecha, String sector, int asiento) {
+       
         // Validaciones
         entradaValida(entrada);
         existeEntrada(entrada);
+
         Entrada entradaActual = (Entrada) entrada;
         Usuario usuario = entradaAUsuario.get(entradaActual.getId());
-
         if (usuario == null || !usuario.validarContrasenia(contrasenia)) {
             throw new RuntimeException("Usuario o contrasenia incorrecto");
         }
@@ -321,12 +326,13 @@ public class Ticketek implements ITicketek {
 
     @Override
     public IEntrada cambiarEntrada(IEntrada entrada, String contrasenia, String fecha) {
+        
         // Validaciones
         entradaValida(entrada);
         existeEntrada(entrada);
+        
         Entrada entradaActual = (Entrada) entrada;
         Usuario usuario = entradaAUsuario.get(entradaActual.getId());
-
         if (usuario == null || !usuario.validarContrasenia(contrasenia)) {
             throw new RuntimeException("Usuario o contrasenia incorrecto");
         }
@@ -383,13 +389,14 @@ public class Ticketek implements ITicketek {
 
     @Override
     public double costoEntrada(String nombreEspectaculo, String fecha, String sector) {
+        
+        //Validaciones
         espectatculoExiste(nombreEspectaculo);
 
         Espectaculo espect = espectaculos.get(nombreEspectaculo);
         Funcion func = espect.getFunciones().get(fecha);
         if (func == null)
             throw new RuntimeException("No existe una funcion en esa fecha para el espectaculo ingresado");
-
         Sede sede = sedes.get(func.getNombreSede());
         if (sede instanceof SedeConPlatea) {
             SedeConPlatea scp = (SedeConPlatea) sede;
@@ -402,13 +409,19 @@ public class Ticketek implements ITicketek {
 
     @Override
     public double totalRecaudado(String nombreEspectaculo) {
+        
+        //Validaciones
         espectatculoExiste(nombreEspectaculo);
+        
         return espectaculos.get(nombreEspectaculo).getRecaudacionTotal();
     }
 
     @Override
     public double totalRecaudadoPorSede(String nombreEspectaculo, String nombreSede) {
+        
+        //Validaciones
         espectatculoExiste(nombreEspectaculo);
+        
         return espectaculos.get(nombreEspectaculo).getRecaudacionPorSede(nombreSede);
     }
 
