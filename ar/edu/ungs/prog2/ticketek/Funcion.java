@@ -1,7 +1,5 @@
 package ar.edu.ungs.prog2.ticketek;
 
-import java.time.LocalDate;
-
 public class Funcion {
     private String nombreEspectaculo;
     private String fecha;

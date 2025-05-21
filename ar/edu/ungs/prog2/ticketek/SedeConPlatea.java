@@ -1,7 +1,5 @@
 package ar.edu.ungs.prog2.ticketek;
 
-import javax.management.RuntimeErrorException;
-
 public class SedeConPlatea extends Sede {
     public int[] porcentajeAdicional; //CAMBIAR A PROTECTED
     protected int[] asientos;
@@ -21,19 +19,24 @@ public class SedeConPlatea extends Sede {
     }
 
     public double getPorcentaje(String platea){
-        String Platea= platea.toUpperCase();
-         switch (Platea) {
+        String p = platea.trim().toUpperCase();
+        switch (p) {
             case "PLATEA VIP":
-                return porcentajePlateas[0];
+            case "VIP":
+                return porcentajeAdicional[0];
             case "PLATEA COMÚN":
-                return porcentajePlateas[1];
+            case "PLATEA COMUN":
+            case "COMUN":
+            case "COMÚN":
+                return porcentajeAdicional[1];
             case "PLATEA BAJA":
-                return porcentajePlateas[2];
+            case "BAJA":
+                return porcentajeAdicional[2];
             case "PLATEA ALTA":
-               return porcentajePlateas[3];
+            case "ALTA":
+                return porcentajeAdicional[3];
             default:
-                //throw new RuntimeException("Tipo de platea no valido");
-                return 0;
+                throw new RuntimeException("Tipo de platea no valido");
         }
     }
 

@@ -7,7 +7,8 @@ public class Espectaculo {
     private String nombre;
     private int codigoEspectaculo;
     private HashMap<String, Funcion> funciones; // clave: fecha
-    private HashMap<String, Integer> recaudacionesPorSede;
+    private HashMap<String, Double> recaudacionesPorSede = new HashMap<>();
+    private double recaudacionTotal = 0;
 
     public Espectaculo(String nombre, int codigoEspectaculo) {
         this.nombre = nombre;
@@ -24,12 +25,25 @@ public class Espectaculo {
         return false;
     }
 
+    public void sumarRecaudacion(double monto, String sede) {
+        recaudacionTotal += monto;
+        recaudacionesPorSede.put(sede, recaudacionesPorSede.getOrDefault(sede, 0.0) + monto);
+    }
+
     public String getNombre() {
         return nombre;
     }
 
+    public double getRecaudacionTotal() {
+        return recaudacionTotal;
+    }
+
     public int getCodigoEspectaculo() {
         return codigoEspectaculo;
+    }
+
+    public double getRecaudacionPorSede(String sede) {
+        return recaudacionesPorSede.getOrDefault(sede, 0.0);
     }
 
     public Map<String, Funcion> getFunciones() {

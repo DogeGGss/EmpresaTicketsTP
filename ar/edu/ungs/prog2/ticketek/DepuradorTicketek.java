@@ -39,18 +39,6 @@ public class DepuradorTicketek {
             }
         }
 
-        // Entradas por espectáculo
-        System.out.println("\nEntradas por espectáculo:");
-        String[] espectaculos = {"Coldplay en vivo", "La sirenita", "Stand up Comedy", "Ballet Clásico", "El Rey Leon"};
-        for (String esp : espectaculos) {
-            List<IEntrada> entradas = ticketek.listarEntradasEspectaculo(esp);
-            System.out.println("Espectáculo: " + esp + " - Entradas vendidas: " + entradas.size());
-            for (IEntrada e : entradas) {
-                System.out.println("  " + e);
-            }
-        }
-
-        System.out.println("----- FIN DEPURACION TICKETEK -----");
         
         
     if (ticketek instanceof Ticketek) {
@@ -60,14 +48,12 @@ public class DepuradorTicketek {
             Sede s = entry.getValue();
             if (s instanceof SedeConPlatea) {
                 SedeConPlatea scp = (SedeConPlatea) s;
-                System.out.print("Sede: " + scp.getNombre() + " - Porcentajes: ");
-                for (int porcentaje : scp.porcentajeAdicional) {
-                    System.out.print(porcentaje + " ");
-                    System.out.println("................................");
-                    System.out.println(scp.sectores[3]);
-                    System.out.println("................................");
+                System.out.println("Sede: " + scp.getNombre());
+                String[] pruebas = {"PLATEA VIP", "VIP", "PLATEA COMÚN", "COMUN", "PLATEA BAJA", "BAJA", "PLATEA ALTA", "ALTA"};
+                for (String sector : pruebas) {
+                    double porcentaje = scp.getPorcentaje(sector);
+                    System.out.println("  Sector: " + sector + " -> Porcentaje: " + porcentaje);
                 }
-                System.out.println();
             }
         }
     }

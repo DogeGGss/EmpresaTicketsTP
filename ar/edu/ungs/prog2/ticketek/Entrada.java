@@ -42,6 +42,7 @@ public class Entrada implements IEntrada {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("- "); // <-- Agregá esto
         sb.append(nombreEspectaculo).append(" - ");
         sb.append(fecha);
         if (!esFutura()) sb.append(" P");

@@ -102,8 +102,9 @@ public class Ticketek implements ITicketek {
             usuario.agregarEntrada(entrada);
             vendidas.add(entrada);
             entradaAUsuario.put(entrada.getId(), usuario);
-            //TERMINAR
-            //espectaculo.sumar(); para la recaudacion
+  
+            // SUMAR RECAUDACION
+        espectaculo.sumarRecaudacion(funcion.getPrecioBase(), funcion.getNombreSede());
         }
         return vendidas;
     }
@@ -111,7 +112,7 @@ public class Ticketek implements ITicketek {
     //Vende la entrada de una sede con platea
     @Override
     public List<IEntrada> venderEntrada(String nombreEspectaculo, String fecha, String email, String contrasenia, 
-    String sector, int[] asientos) {
+        String sector, int[] asientos) {
         
         //Validaciones
         usuarioValido(email, contrasenia);
@@ -122,13 +123,23 @@ public class Ticketek implements ITicketek {
         Funcion funcion = espectaculo.getFunciones().get(fecha);
         Usuario usuario = usuarios.get(email);
         List<IEntrada> vendidas = new java.util.ArrayList<>();
+        Sede sede = sedes.get(funcion.getNombreSede());
+
         for (int nroAsiento : asientos) {
             Entrada entrada = new Entrada(nombreEspectaculo, fecha, funcion.getNombreSede(), sector, nroAsiento, funcion.getPrecioBase());
             usuario.agregarEntrada(entrada);
             vendidas.add(entrada);
             entradaAUsuario.put(entrada.getId(), usuario);
-            //TERMINAR
-            //espectaculo.sumar(); para la recaudacion
+
+            double precio = costoEntrada(nombreEspectaculo, fecha, sector);
+
+            // Si la sede es MiniEstadio, sumá el adicional de consumición
+            if (sede instanceof MiniEstadio) {
+                MiniEstadio mini = (MiniEstadio) sede;
+                precio += mini.getPrecioConsumicion();
+            }
+
+            espectaculo.sumarRecaudacion(precio, funcion.getNombreSede());
         }
         return vendidas;
     }
@@ -256,71 +267,149 @@ public class Ticketek implements ITicketek {
 
     @Override
     public IEntrada cambiarEntrada(IEntrada entrada, String contrasenia, String fecha, String sector, int asiento) {
-        /*  TODO: Implementar
-            for(Funcion funcion: espectaculos.get(nombreEspectaculo).getFunciones().values()){
-                if (funcion.mismaFecha(fecha)) {
-                
-             }
+        // Validaciones
+        entradaValida(entrada);
+        existeEntrada(entrada);
+        Entrada entradaActual = (Entrada) entrada;
+        Usuario usuario = entradaAUsuario.get(entradaActual.getId());
+
+        if (usuario == null || !usuario.validarContrasenia(contrasenia)) {
+            throw new RuntimeException("Usuario o contrasenia incorrecto");
         }
-        */
-        return null;
-        
+        if (!entradaActual.esFutura()) {
+            throw new RuntimeException("La entrada original está en el pasado");
+        }
+
+        String nombreEspectaculo = entradaActual.getNombreEspectaculo();
+        espectatculoExiste(nombreEspectaculo);
+
+        Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
+        Funcion nuevaFuncion = espectaculo.getFunciones().get(fecha);
+        if (nuevaFuncion == null)
+            throw new RuntimeException("No existe la funcion en esa fecha para el espectaculo ingresado");
+
+        Sede sede = sedes.get(nuevaFuncion.getNombreSede());
+        if (!(sede instanceof SedeConPlatea))
+            throw new RuntimeException("La sede de la funcion no es con platea");
+
+        // Anular la entrada anterior
+        entradaActual.setValido(false);
+
+        // Crear la nueva entrada con el sector y asiento indicados
+        double precio = costoEntrada(nombreEspectaculo, fecha, sector);
+        if (sede instanceof MiniEstadio) {
+            MiniEstadio mini = (MiniEstadio) sede;
+            precio += mini.getPrecioConsumicion();
+        }
+
+        Entrada nuevaEntrada = new Entrada(
+            nombreEspectaculo,
+            fecha,
+            nuevaFuncion.getNombreSede(),
+            sector,
+            asiento,
+            nuevaFuncion.getPrecioBase()
+        );
+        usuario.agregarEntrada(nuevaEntrada);
+        entradaAUsuario.put(nuevaEntrada.getId(), usuario);
+
+        // Sumar recaudación por la nueva entrada
+        espectaculo.sumarRecaudacion(precio, nuevaFuncion.getNombreSede());
+
+        return nuevaEntrada;
     }
 
     @Override
     public IEntrada cambiarEntrada(IEntrada entrada, String contrasenia, String fecha) {
-        // TODO: Implementar
-        return null;
+        // Validaciones
+        entradaValida(entrada);
+        existeEntrada(entrada);
+        Entrada entradaActual = (Entrada) entrada;
+        Usuario usuario = entradaAUsuario.get(entradaActual.getId());
+
+        if (usuario == null || !usuario.validarContrasenia(contrasenia)) {
+            throw new RuntimeException("Usuario o contrasenia incorrecto");
+        }
+        if (!entradaActual.esFutura()) {
+            throw new RuntimeException("La entrada original está en el pasado");
+        }
+
+        String nombreEspectaculo = entradaActual.getNombreEspectaculo();
+        espectatculoExiste(nombreEspectaculo);
+
+        Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
+        Funcion nuevaFuncion = espectaculo.getFunciones().get(fecha);
+        if (nuevaFuncion == null)
+            throw new RuntimeException("No existe la funcion en esa fecha para el espectaculo ingresado");
+
+        Sede sede = sedes.get(nuevaFuncion.getNombreSede());
+        if (!(sede instanceof Estadio))
+            throw new RuntimeException("La sede de la funcion no es un estadio");
+
+        // Anular la entrada anterior
+        entradaActual.setValido(false);
+
+        // Crear la nueva entrada con sector "CAMPO"
+        Entrada nuevaEntrada = new Entrada(
+            nombreEspectaculo,
+            fecha,
+            nuevaFuncion.getNombreSede(),
+            "CAMPO", // sector correcto para estadio
+            0,
+            nuevaFuncion.getPrecioBase()
+        );
+        usuario.agregarEntrada(nuevaEntrada);
+        entradaAUsuario.put(nuevaEntrada.getId(), usuario);
+
+        // Sumar recaudación por la nueva entrada
+        espectaculo.sumarRecaudacion(nuevaFuncion.getPrecioBase(), nuevaFuncion.getNombreSede());
+
+        return nuevaEntrada;
     }
 
     //Para estadios
     @Override
     public double costoEntrada(String nombreEspectaculo, String fecha) {
-        
-        //Validaciones
+        // Validaciones
         espectatculoExiste(nombreEspectaculo);
 
-        Espectaculo espect= espectaculos.get(nombreEspectaculo);
-        for(Funcion func: espect.getFunciones().values()){
-            if(func.mismaFecha(fecha)){
-                return func.getPrecioBase();
-            }
-        }
-        throw new RuntimeException("No existe una funcion en esa fecha para el espectaculo ingresado");
+        Espectaculo espect = espectaculos.get(nombreEspectaculo);
+        Funcion func = espect.getFunciones().get(fecha);
+        if (func == null)
+            throw new RuntimeException("No existe una funcion en esa fecha para el espectaculo ingresado");
+
+        return func.getPrecioBase();
     }
 
     @Override
     public double costoEntrada(String nombreEspectaculo, String fecha, String sector) {
-        
-        //Validaciones
         espectatculoExiste(nombreEspectaculo);
-            
+
         Espectaculo espect = espectaculos.get(nombreEspectaculo);
-        for (Funcion func : espect.getFunciones().values()) {
-            if (func.mismaFecha(fecha)) {
-                Sede sede = sedes.get(func.getNombreSede());
-                if (sede instanceof SedeConPlatea) {
-                    SedeConPlatea scp = (SedeConPlatea) sede;
-                    double porcentaje = scp.getPorcentaje(sector);
-                    return func.getPrecioBase() * (100+porcentaje);
-                } else {
-                    throw new RuntimeException("La sede de la funcion no es con platea");
-                }
-            }
+        Funcion func = espect.getFunciones().get(fecha);
+        if (func == null)
+            throw new RuntimeException("No existe una funcion en esa fecha para el espectaculo ingresado");
+
+        Sede sede = sedes.get(func.getNombreSede());
+        if (sede instanceof SedeConPlatea) {
+            SedeConPlatea scp = (SedeConPlatea) sede;
+            double porcentaje = scp.getPorcentaje(sector);
+            return func.getPrecioBase() * (1 + porcentaje / 100.0);
+        } else {
+            throw new RuntimeException("La sede de la funcion no es con platea");
         }
-        throw new RuntimeException("No existe una funcion en esa fecha para el espectaculo ingresado");
     }
 
     @Override
     public double totalRecaudado(String nombreEspectaculo) {
-        // TODO: Implementar
-        return 0;
+        espectatculoExiste(nombreEspectaculo);
+        return espectaculos.get(nombreEspectaculo).getRecaudacionTotal();
     }
 
     @Override
     public double totalRecaudadoPorSede(String nombreEspectaculo, String nombreSede) {
-        // TODO: Implementar
-        return 0;
+        espectatculoExiste(nombreEspectaculo);
+        return espectaculos.get(nombreEspectaculo).getRecaudacionPorSede(nombreSede);
     }
 
 
