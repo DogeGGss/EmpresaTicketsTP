@@ -75,7 +75,7 @@ public class Ticketek implements ITicketek {
     public void agregarFuncion(String nombreEspectaculo, String fecha, String sede, double precioBase) {
         
         //Validaciones
-        existeEspectaculo(nombreEspectaculo);
+        espectatculoExiste(nombreEspectaculo);
         funcionValidaParaRegistra(nombreEspectaculo, fecha, sede, precioBase);
 
         Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
@@ -240,25 +240,18 @@ public class Ticketek implements ITicketek {
 
     @Override
     public boolean anularEntrada(IEntrada entrada, String contrasenia) {
-        if(entrada==null){
-            throw new RuntimeException("Entrada nula");
-        }
-        if (!(entrada instanceof Entrada)){
-            throw new RuntimeException("No es una entrada valida");
-        }
+        //Validaciones
+        entradaValida(entrada);
+        existeEntrada(entrada);
         Entrada entradaActual = (Entrada) entrada;
         Usuario usuario = entradaAUsuario.get(entradaActual.getId());
-        if (usuario == null){
-            throw new RuntimeException("Usuario nulo");
+        
+        if (usuario == null || !usuario.validarContrasenia(contrasenia)) {
+            throw new RuntimeException("Usuario o contrasenia incorrecto");
         }
-        if (!usuario.validarContrasenia(contrasenia)){
-            throw new RuntimeException("Contraseña inválida");
-        }
-        if (!entradaActual.isValido()){
-            throw new RuntimeException("Entrada invalida");
-        }
-            entradaActual.setValido(false);
-            return true;
+
+        entradaActual.setValido(false);
+        return true;
     }
 
     @Override
@@ -283,8 +276,10 @@ public class Ticketek implements ITicketek {
     //Para estadios
     @Override
     public double costoEntrada(String nombreEspectaculo, String fecha) {
-        if (!espectaculos.containsKey(nombreEspectaculo))
-            throw new RuntimeException("El espectáculo no está registrado");
+        
+        //Validaciones
+        espectatculoExiste(nombreEspectaculo);
+
         Espectaculo espect= espectaculos.get(nombreEspectaculo);
         for(Funcion func: espect.getFunciones().values()){
             if(func.mismaFecha(fecha)){
@@ -296,8 +291,9 @@ public class Ticketek implements ITicketek {
 
     @Override
     public double costoEntrada(String nombreEspectaculo, String fecha, String sector) {
-        if (!espectaculos.containsKey(nombreEspectaculo))
-            throw new RuntimeException("El espectáculo no está registrado");
+        
+        //Validaciones
+        espectatculoExiste(nombreEspectaculo);
             
         Espectaculo espect = espectaculos.get(nombreEspectaculo);
         for (Funcion func : espect.getFunciones().values()) {
@@ -308,7 +304,7 @@ public class Ticketek implements ITicketek {
                     double porcentaje = scp.getPorcentaje(sector);
                     return func.getPrecioBase() * (100+porcentaje);
                 } else {
-                    throw new RuntimeException("La sede no es numerada");
+                    throw new RuntimeException("La sede de la funcion no es con platea");
                 }
             }
         }
@@ -387,24 +383,19 @@ public class Ticketek implements ITicketek {
             throw new RuntimeException("Contraseña inválida");
     }
 
-        private void espectaculoValidoParaRegistrar(String nombreEspectaculo) {
+    private void espectaculoValidoParaRegistrar(String nombreEspectaculo) {
         if (nombreEspectaculo == null || nombreEspectaculo.trim().isEmpty())
             throw new RuntimeException("Nombre de espectáculo inválido");
-        if (!espectaculos.containsKey(nombreEspectaculo))
+        if (espectaculos.containsKey(nombreEspectaculo))
             throw new RuntimeException("El espectáculo ya esta registrado");
     }
 
-    private void existeEspectaculo(String nombreEspectaculo) {
-        if (!espectaculos.containsKey(nombreEspectaculo))
-            throw new RuntimeException("El espectáculo no está registrado");
-    }
-
     private void funcionValidaParaRegistra(String nombreEspectaculo, String fecha, String sede, double precioBase) {
-        existeEspectaculo(nombreEspectaculo);
-        Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
-        if (espectaculo.tieneFuncionEnSedeYFecha(espectaculo.getFunciones().get(fecha).getNombreSede(), fecha))
+    espectatculoExiste(nombreEspectaculo);
+    Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
+        if (espectaculo.getFunciones().containsKey(fecha))
             throw new RuntimeException("Ya existe una función para ese espectáculo en esa fecha");
-        
+
         if (fecha == null || fecha.trim().isEmpty())
             throw new RuntimeException("Fecha inválida");
         if (sede == null || sede.trim().isEmpty() || !sedes.containsKey(sede))
@@ -415,6 +406,7 @@ public class Ticketek implements ITicketek {
 
 
     private void usuarioValido(String email, String contrasenia){
+
         if (!usuarios.containsKey(email)){
              throw new RuntimeException("Usuario o contrasenia incorrecto");
         }
@@ -444,7 +436,7 @@ public class Ticketek implements ITicketek {
         Sede sede = sedes.get(funcion.getNombreSede());
         
         if (!(sede instanceof SedeConPlatea))
-            throw new RuntimeException("La sede no es numerada");
+            throw new RuntimeException("La sede no es con platea");
     }
 
     private void validarSedeSinPlatea(String nombreEspectaculo, String fecha){
@@ -454,6 +446,26 @@ public class Ticketek implements ITicketek {
 
         if (!(sede instanceof Estadio))
         throw new RuntimeException("La sede no es un estadio");
+    }
+
+    private void existeEntrada(IEntrada entrada){
+        Entrada entradaActual = (Entrada) entrada;
+        Usuario usuario = entradaAUsuario.get(entradaActual.getId());
+        if (usuario == null){
+            throw new RuntimeException("Usuario nulo");
+        }
+        if (!entradaActual.isValido()){
+            throw new RuntimeException("Entrada invalida");
+        }
+    }
+
+    private void entradaValida(IEntrada entrada){
+        if(entrada==null){
+            throw new RuntimeException("Entrada nula");
+        }
+        if (!(entrada instanceof Entrada)){
+            throw new RuntimeException("No es una entrada valida");
+        }
     }
 
 
