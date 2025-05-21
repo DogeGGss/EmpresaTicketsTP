@@ -30,6 +30,19 @@ public class Espectaculo {
         recaudacionesPorSede.put(sede, recaudacionesPorSede.getOrDefault(sede, 0.0) + monto);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Espectáculo: ").append(nombre)
+        .append(" (Código: ").append(codigoEspectaculo).append(")\n");
+        sb.append("Funciones:\n");
+        for (Funcion f : funciones.values()) {
+            sb.append("  ").append(f).append("\n");
+        }
+        sb.append("Recaudación total: $").append(getRecaudacionTotal());
+        return sb.toString();
+    }
+
     public String getNombre() {
         return nombre;
     }

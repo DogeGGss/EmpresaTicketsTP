@@ -25,6 +25,12 @@ public class Funcion {
         this.nombreEspectaculo = "";
     }
 
+    
+    @Override
+    public String toString() {
+        return "Función: " + fecha + " - Sede: " + sede + " - Precio base: $" + precioBase;
+    }
+
     public boolean mismaFecha(String fecha) {
     return this.fecha.equals(fecha);
     }

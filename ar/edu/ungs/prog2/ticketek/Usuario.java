@@ -19,6 +19,11 @@ public class Usuario {
         this.contrasenia = contrasenia;
         this.entradas = new HashMap<>();
     }
+    
+    @Override
+    public String toString() {
+        return "Usuario: " + nombre + " " + apellido + " (" + email + ")";
+    }
 
     public String getEmail() {
         return email;

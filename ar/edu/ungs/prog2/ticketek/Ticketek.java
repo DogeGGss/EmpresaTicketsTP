@@ -412,6 +412,23 @@ public class Ticketek implements ITicketek {
         return espectaculos.get(nombreEspectaculo).getRecaudacionPorSede(nombreSede);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Usuarios:\n");
+        for (Usuario u : usuarios.values()) {
+            sb.append(u.toString()).append("\n");
+        }
+        sb.append("Sedes:\n");
+        for (Sede s : sedes.values()) {
+            sb.append(s.toString()).append("\n");
+        }
+        sb.append("Espectáculos:\n");
+        for (Espectaculo e : espectaculos.values()) {
+            sb.append(e.toString()).append("\n");
+        }
+        return sb.toString();
+    }
 
 
     //Metodos auxiliares
@@ -556,7 +573,6 @@ public class Ticketek implements ITicketek {
             throw new RuntimeException("No es una entrada valida");
         }
     }
-
 
     //borrar despues IMPORTANTE
 

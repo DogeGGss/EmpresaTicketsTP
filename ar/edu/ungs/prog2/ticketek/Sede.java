@@ -11,6 +11,11 @@ public class Sede {
         this.capacidadMaxima = capacidadMaxima;
     }
 
+    @Override
+    public String toString() {
+        return "Sede: " + nombre + " - Dirección: " + direccion + " - Capacidad: " + capacidadMaxima;
+    }
+
     public String getNombre() {
         return nombre;
     }

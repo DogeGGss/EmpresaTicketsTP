@@ -58,6 +58,10 @@ public class DepuradorTicketek {
         }
     }
 
+    System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+     System.out.println(ticketek.toString());
+        System.out.println("\n----- FIN DEPURACION TICKETEK -----");
+
 }
 }
 

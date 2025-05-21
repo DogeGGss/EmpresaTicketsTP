@@ -290,7 +290,9 @@ public class TicketekTest{
         assertEquals(6, ticketek.listarEntradasEspectaculo("Coldplay en vivo").size());
     }
 
-    
-   
+    @Test
+public void depuracionManualTicketek() {
+    DepuradorTicketek.depurarTicketek(ticketek);
+}
 
 }

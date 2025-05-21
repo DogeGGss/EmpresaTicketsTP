@@ -6,4 +6,9 @@ public class Estadio extends Sede {
         super(nombre, direccion, capacidadMaxima);
         
     }
+
+    @Override
+    public String toString() {
+        return "Estadio: " + getNombre() + " - Dirección: " + getDireccion() + " - Capacidad: " + getCapacidadMaxima();
+    }
 }
