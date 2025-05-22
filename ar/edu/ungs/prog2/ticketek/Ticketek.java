@@ -144,17 +144,6 @@ public class Ticketek implements ITicketek {
             }
 
             espectaculo.sumarRecaudacion(precio, funcion.getNombreSede());
-
-            
-            SedeConPlatea sedePlatea = (SedeConPlatea) sede;
-            int idxSector = sedePlatea.getIndiceSector(sector);
-            int offset = 0;
-            int[] capacidades = sedePlatea.getCapacidades();
-            for (int i = 0; i < idxSector; i++) {
-                offset += capacidades[i];
-            }
-            int indiceGlobal = offset + (nroAsiento - 1);
-            //sedePlatea.codigos_entradas[indiceGlobal] = entrada.getId();
         }
         return vendidas;
     }
@@ -289,7 +278,7 @@ public class Ticketek implements ITicketek {
 
     @Override
     public IEntrada cambiarEntrada(IEntrada entrada, String contrasenia, String fecha, String sector, int asiento) {
-       
+        
         // Validaciones
         entradaValida(entrada);
         existeEntrada(entrada);
@@ -306,17 +295,23 @@ public class Ticketek implements ITicketek {
         String nombreEspectaculo = entradaActual.getNombreEspectaculo();
         espectatculoExiste(nombreEspectaculo);
 
+        // Validaciones para la nueva función y asiento
+        int[] asientos = new int[] { asiento };
+        nroAsientoValido(nombreEspectaculo, fecha, sector, asientos);
+        hayEntradasDisponiblesSedeConPlatea(nombreEspectaculo, fecha, sector, asientos);
+
         Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
         Funcion nuevaFuncion = espectaculo.getFunciones().get(fecha);
         if (nuevaFuncion == null)
-            throw new RuntimeException("No existe la funcion en esa fecha para el espectaculo ingresado");
+            throw new RuntimeException("No existe la funcion en esa fecha para el espectáculo ingresado");
 
         Sede sede = sedes.get(nuevaFuncion.getNombreSede());
         if (!(sede instanceof SedeConPlatea))
             throw new RuntimeException("La sede de la funcion no es con platea");
 
-        // Anular la entrada anterior
+        // Anular la entrada anterior y restar recaudación
         entradaActual.setValido(false);
+        espectaculo.sumarRecaudacion(-entradaActual.precio(), entradaActual.getSede());
 
         // Crear la nueva entrada con el sector y asiento indicados
         double precio = costoEntrada(nombreEspectaculo, fecha, sector);
