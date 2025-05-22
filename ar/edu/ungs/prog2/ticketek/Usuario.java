@@ -9,7 +9,7 @@ public class Usuario {
     private String nombre;
     private String apellido;
     private String contrasenia;
-    private Map<Integer, IEntrada> entradas; // Map de id a entrada
+    private Map<Integer, IEntrada> entradas = new HashMap<>();; // clave= id de entrada
     
 
     public Usuario(String email, String nombre, String apellido, String contrasenia) {
@@ -17,7 +17,6 @@ public class Usuario {
         this.nombre = nombre;
         this.apellido = apellido;
         this.contrasenia = contrasenia;
-        this.entradas = new HashMap<>();
     }
     
     @Override
@@ -25,7 +24,21 @@ public class Usuario {
         return "Usuario: " + nombre + " " + apellido + " (" + email + ")";
     }
 
-    public String getEmail() {
+    public void agregarEntrada(IEntrada entrada) {
+        if (entrada instanceof Entrada) {
+            entradas.put(((Entrada)entrada).getId(), entrada);
+        }
+    }
+
+    public IEntrada getEntradaPorId(int id) {
+        return entradas.get(id);
+    }
+
+    public boolean validarContrasenia(String contrasenia) {
+        return this.contrasenia.equals(contrasenia);
+    }
+
+        public String getEmail() {
         return email;
     }
 
@@ -43,20 +56,6 @@ public class Usuario {
 
     public Collection<IEntrada> getEntradas() {
         return entradas.values();
-    }
-
-    public void agregarEntrada(IEntrada entrada) {
-        if (entrada instanceof Entrada) {
-            entradas.put(((Entrada)entrada).getId(), entrada);
-        }
-    }
-
-    public IEntrada getEntradaPorId(int id) {
-        return entradas.get(id);
-    }
-
-    public boolean validarContrasenia(String contrasenia) {
-        return this.contrasenia.equals(contrasenia);
     }
 
 }

@@ -1,11 +1,11 @@
 package ar.edu.ungs.prog2.ticketek;
 
 public class SedeConPlatea extends Sede {
-    public int[] porcentajeAdicional; //CAMBIAR A PROTECTED
-    protected int[] asientos;
-    protected int[] codigos_entradas;
+    protected int[] porcentajeAdicional;
+    //protected int[] asientos;
+    //protected int[] codigos_entradas;
     protected int[] porcentajePlateas;
-    public String[] sectores;
+    protected String[] sectores;
     protected int[] capacidades;
 
     public SedeConPlatea(String nombre, String direccion, int capacidadMaxima, int asientosPorFila, String[] sectores, int[] capacidades, 
@@ -13,31 +13,30 @@ public class SedeConPlatea extends Sede {
         super(nombre, direccion, capacidadMaxima);
         this.sectores = sectores;
         this.capacidades = capacidades;
-        this.asientos = new int[asientosPorFila * 4];
-        this.codigos_entradas = new int[asientosPorFila * 4];
         this.porcentajeAdicional = porcentajeAdicional;
+        int totalAsientos = 0;
+        for (int cap : capacidades) totalAsientos += cap;
+        //this.asientos = new int[totalAsientos];
+        //this.codigos_entradas = new int[totalAsientos];
     }
 
-    public double getPorcentaje(String platea){
-        String p = platea.trim().toUpperCase();
-        switch (p) {
-            case "PLATEA VIP":
-            case "VIP":
-                return porcentajeAdicional[0];
-            case "PLATEA COMÚN":
-            case "PLATEA COMUN":
-            case "COMUN":
-            case "COMÚN":
-                return porcentajeAdicional[1];
-            case "PLATEA BAJA":
-            case "BAJA":
-                return porcentajeAdicional[2];
-            case "PLATEA ALTA":
-            case "ALTA":
-                return porcentajeAdicional[3];
-            default:
-                throw new RuntimeException("Tipo de platea no valido");
+    public double getPorcentaje(String platea) {
+        for (int i = 0; i < sectores.length; i++) {
+            if (platea.equals(sectores[i])) {
+                return porcentajeAdicional[i];
+            }
         }
+        throw new RuntimeException("Tipo de platea no válido: " + platea);
+    }
+
+    public int getIndiceSector(String sector) {
+        String buscado = sector.trim().toUpperCase();
+        for (int i = 0; i < sectores.length; i++) {
+            if (sectores[i].trim().toUpperCase().equals(buscado)) {
+                return i;
+            }
+        }
+        throw new RuntimeException("Sector no válido: " + sector);
     }
 
     public String[] getSectores() {

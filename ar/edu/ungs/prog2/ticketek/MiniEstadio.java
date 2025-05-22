@@ -1,8 +1,8 @@
 package ar.edu.ungs.prog2.ticketek;
 
 public class MiniEstadio extends SedeConPlatea {
-    private int cantidadPuestos;
-    private double precioAniadido;
+    protected int cantidadPuestos;
+    protected double precioAniadido;
 
     public MiniEstadio(String nombre, String direccion, int capacidadMaxima, int asientosPorFila, int cantidadPuestos,
      double precioAniadido, String[] sectores, int[] capacidad, int[] porcentajeAdicional) {
@@ -11,7 +11,6 @@ public class MiniEstadio extends SedeConPlatea {
         this.precioAniadido = precioAniadido;
     }
 
-    // MiniEstadio.java
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

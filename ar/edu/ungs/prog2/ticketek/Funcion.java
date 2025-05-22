@@ -7,7 +7,7 @@ public class Funcion {
     private double precioBase;
     private int codigoEspectaculo;
 
-    // Constructor original
+    //Constructor original
     public Funcion(String nombreEspectaculo,int codigoEspectaculo, String fecha, String sede, double precioBase) {
         this.nombreEspectaculo = nombreEspectaculo;
         this.fecha = fecha;
@@ -16,16 +16,14 @@ public class Funcion {
         this.codigoEspectaculo=codigoEspectaculo;
     }
 
-    // Constructor alternativo para compatibilidad con Espectaculo
+    //Constructor alternativo para compatibilidad con Espectaculo
     public Funcion(Fecha fecha, Sede sede) {
         this.fecha = fecha.toString();
         this.sede = sede.getNombre();
-        // Puedes asignar valores por defecto o modificar según tu modelo
         this.precioBase = 0;
         this.nombreEspectaculo = "";
     }
 
-    
     @Override
     public String toString() {
         return "Función: " + fecha + " - Sede: " + sede + " - Precio base: $" + precioBase;
@@ -34,7 +32,6 @@ public class Funcion {
     public boolean mismaFecha(String fecha) {
     return this.fecha.equals(fecha);
     }
-
 
     public int getCodigoEspectaculoEstaFuncion(){
         return codigoEspectaculo;

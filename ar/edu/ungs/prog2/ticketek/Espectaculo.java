@@ -6,14 +6,20 @@ import java.util.Map;
 public class Espectaculo {
     private String nombre;
     private int codigoEspectaculo;
-    private HashMap<String, Funcion> funciones; // clave: fecha
+    private HashMap<String, Funcion> funciones= new HashMap<>(); // clave: fecha
     private HashMap<String, Double> recaudacionesPorSede = new HashMap<>();
     private double recaudacionTotal = 0;
 
     public Espectaculo(String nombre, int codigoEspectaculo) {
         this.nombre = nombre;
         this.codigoEspectaculo = codigoEspectaculo;
-        this.funciones = new HashMap<>();
+    }
+
+    public void crearFuncion(String fecha, Sede sede, double precioBase) {
+        if (funciones.containsKey(fecha)) {
+            throw new RuntimeException("Ya existe una función para ese espectáculo en esa fecha");
+        }
+        funciones.put(fecha, new Funcion(this.nombre,this.codigoEspectaculo, fecha, sede.getNombre(), precioBase));
     }
 
     public boolean tieneFuncionEnSedeYFecha(String sede, String fecha) {
@@ -43,6 +49,11 @@ public class Espectaculo {
         return sb.toString();
     }
 
+    
+    public double getRecaudacionPorSede(String sede) {
+        return recaudacionesPorSede.getOrDefault(sede, 0.0);
+    }
+
     public String getNombre() {
         return nombre;
     }
@@ -55,18 +66,7 @@ public class Espectaculo {
         return codigoEspectaculo;
     }
 
-    public double getRecaudacionPorSede(String sede) {
-        return recaudacionesPorSede.getOrDefault(sede, 0.0);
-    }
-
     public Map<String, Funcion> getFunciones() {
         return funciones;
-    }
-
-    public void crearFuncion(String fecha, Sede sede, double precioBase) {
-        if (funciones.containsKey(fecha)) {
-            throw new RuntimeException("Ya existe una función para ese espectáculo en esa fecha");
-        }
-        funciones.put(fecha, new Funcion(this.nombre,this.codigoEspectaculo, fecha, sede.getNombre(), precioBase));
     }
 }

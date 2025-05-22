@@ -35,14 +35,10 @@ public class Entrada implements IEntrada {
                (nroAsiento > 0 ? " Asiento: " + nroAsiento : "");
     }
 
-    public int getId() {
-        return id;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("- "); // <-- Agregá esto
+        sb.append("- "); 
         sb.append(nombreEspectaculo).append(" - ");
         sb.append(fecha);
         if (!esFutura()) sb.append(" P");
@@ -71,7 +67,14 @@ public class Entrada implements IEntrada {
         return fechaEntrada.isAfter(hoy);
     }
 
-    // Getters y setters si los necesitas
+    public int getNroAsiento() {
+        return nroAsiento;
+    }
+
+    public int getId() {
+        return id;
+    }
+    
     public String getFecha() {
         return fecha;
     }

@@ -3,6 +3,7 @@ package ar.edu.ungs.prog2.ticketek;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class Ticketek implements ITicketek {
 
@@ -13,7 +14,7 @@ public class Ticketek implements ITicketek {
     private Map<Integer, Usuario> entradaAUsuario = new HashMap<>();
 
     public Ticketek() {
-        // Constructor: inicializar estructuras de datos internas si es necesario
+        // Constructor
     }
 
     //Estadio
@@ -91,7 +92,8 @@ public class Ticketek implements ITicketek {
         usuarioValido(email, contrasenia);
         funcionExiste(nombreEspectaculo, fecha, email, contrasenia);
         validarSedeSinPlatea(nombreEspectaculo, fecha);
-        
+        hayEntradasDisponiblesEstadio(nombreEspectaculo, fecha, cantidadEntradas);
+
         Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
         Funcion funcion = espectaculo.getFunciones().get(fecha);
         Usuario usuario = usuarios.get(email);
@@ -118,7 +120,9 @@ public class Ticketek implements ITicketek {
         usuarioValido(email, contrasenia);
         funcionExiste(nombreEspectaculo, fecha, email, contrasenia);
         validarSedeConPlatea(nombreEspectaculo, fecha);
-        
+        nroAsientoValido(nombreEspectaculo, fecha, sector, asientos);
+        hayEntradasDisponiblesSedeConPlatea(nombreEspectaculo, fecha, sector, asientos);
+
         Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
         Funcion funcion = espectaculo.getFunciones().get(fecha);
         Usuario usuario = usuarios.get(email);
@@ -133,13 +137,24 @@ public class Ticketek implements ITicketek {
 
             double precio = costoEntrada(nombreEspectaculo, fecha, sector);
 
-            // Si la sede es MiniEstadio, sumá el adicional de consumición
+            // Si la sede es MiniEstadio suma el adicional de consumicion
             if (sede instanceof MiniEstadio) {
                 MiniEstadio mini = (MiniEstadio) sede;
                 precio += mini.getPrecioConsumicion();
             }
 
             espectaculo.sumarRecaudacion(precio, funcion.getNombreSede());
+
+            
+            SedeConPlatea sedePlatea = (SedeConPlatea) sede;
+            int idxSector = sedePlatea.getIndiceSector(sector);
+            int offset = 0;
+            int[] capacidades = sedePlatea.getCapacidades();
+            for (int i = 0; i < idxSector; i++) {
+                offset += capacidades[i];
+            }
+            int indiceGlobal = offset + (nroAsiento - 1);
+            //sedePlatea.codigos_entradas[indiceGlobal] = entrada.getId();
         }
         return vendidas;
     }
@@ -213,7 +228,10 @@ public class Ticketek implements ITicketek {
 
         List<IEntrada> resultado = new java.util.ArrayList<>();
         for (Usuario usuario : usuarios.values()) {
-            for (IEntrada entrada : usuario.getEntradas()) {
+            // Usar Iterator para recorrer las entradas del usuario
+            Iterator<IEntrada> it = usuario.getEntradas().iterator();
+            while (it.hasNext()) {
+                IEntrada entrada = it.next();
                 if (entrada instanceof Entrada) {
                     Entrada e = (Entrada) entrada;
                     if (e.getNombreEspectaculo().equals(nombreEspectaculo)) {
@@ -587,18 +605,68 @@ public class Ticketek implements ITicketek {
         }
     }
 
-    //borrar despues IMPORTANTE
+    private void hayEntradasDisponiblesEstadio(String nombreEspectaculo, String fecha, int cantidadEntradas) {
+        Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
+        Funcion funcion = espectaculo.getFunciones().get(fecha);
+        String nombreSede = funcion.getNombreSede();
+        Sede sede = sedes.get(nombreSede);
 
-    public Map<String, Usuario> getUsuarios() {
-        return usuarios;
+        int vendidas = 0;
+        for (Usuario u : usuarios.values()) {
+            for (IEntrada e : u.getEntradas()) {
+                if (e instanceof Entrada) {
+                    Entrada ent = (Entrada) e;
+                    if (ent.getNombreEspectaculo().equals(nombreEspectaculo)
+                        && ent.getFecha().equals(fecha)
+                        && ent.getSede().equals(nombreSede)
+                        && ent.isValido()) {
+                        vendidas++;
+                    }
+                }
+            }
+        }
+        if (vendidas + cantidadEntradas > sede.getCapacidadMaxima()) {
+            throw new RuntimeException("No hay suficientes entradas disponibles para esta función.");
+        }
     }
 
-    public Map<String, Espectaculo> getEspectaculos() {
-        return espectaculos;
+    private void hayEntradasDisponiblesSedeConPlatea(String nombreEspectaculo, String fecha, String sector, int[] asientos) {
+        Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
+        Funcion funcion = espectaculo.getFunciones().get(fecha);
+        String nombreSede = funcion.getNombreSede();
+
+        // Por cada asiento solicitado, verificamos que no esté tomado en ese sector
+        for (int nroAsiento : asientos) {
+            for (Usuario u : usuarios.values()) {
+                for (IEntrada e : u.getEntradas()) {
+                    if (e instanceof Entrada) {
+                        Entrada ent = (Entrada) e;
+                        if (ent.getNombreEspectaculo().equals(nombreEspectaculo)
+                            && ent.getFecha().equals(fecha)
+                            && ent.getSede().equals(nombreSede)
+                            && sector.equals(ent.getSector())
+                            && ent.getNroAsiento() == nroAsiento
+                            && ent.isValido()) {
+                            throw new RuntimeException("El asiento " + nroAsiento + " del sector " + sector + " ya está ocupado.");
+                        }
+                    }
+                }
+            }
+        }
+        //Todos los asientos solicitados están disponibles
     }
 
-    public Map<String, Sede> getSedes() {
-        return sedes;
-    }
+    private void nroAsientoValido(String nombreEspectaculo, String fecha, String sector, int[] asientos) {  
+        Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
+        Funcion funcion = espectaculo.getFunciones().get(fecha);
+        SedeConPlatea sedePlatea = (SedeConPlatea) sedes.get(funcion.getNombreSede());
+        int idxSector = sedePlatea.getIndiceSector(sector);
+        int capacidadSector = sedePlatea.getCapacidades()[idxSector];
 
+        for (int nroAsiento : asientos) {
+            if (nroAsiento < 1 || nroAsiento > capacidadSector) {
+                throw new RuntimeException("Número de asiento inválido para el sector " + sector);
+            }
+        }
+    }
 }

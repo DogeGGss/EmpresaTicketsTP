@@ -152,8 +152,6 @@ public class Principal {
         	System.out.println(" - " + e);
         
 		printEmpresa(ticketek, "Fin de la simulación");
-
-        DepuradorTicketek.depurarTicketek(ticketek);//BORRAR
 	}
 
 	private static void printEmpresa(ITicketek ticketek, String msg) {
