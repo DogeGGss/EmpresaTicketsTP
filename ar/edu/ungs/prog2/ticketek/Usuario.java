@@ -9,7 +9,7 @@ public class Usuario {
     private String nombre;
     private String apellido;
     private String contrasenia;
-    private Map<Integer, IEntrada> entradas = new HashMap<>();; // clave= id de entrada
+    private Map<Integer, IEntrada> entradas = new HashMap<>(); // clave= id de entrada
     
 
     public Usuario(String email, String nombre, String apellido, String contrasenia) {

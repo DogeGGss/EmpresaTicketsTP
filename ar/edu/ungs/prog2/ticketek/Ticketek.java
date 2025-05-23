@@ -365,8 +365,9 @@ public class Ticketek implements ITicketek {
         if (!(sede instanceof Estadio))
             throw new RuntimeException("La sede de la funcion no es un estadio");
 
-        // Anular la entrada anterior
+        // Anular la entrada anterior y restar recaudación
         entradaActual.setValido(false);
+        espectaculo.sumarRecaudacion(-entradaActual.precio(), entradaActual.getSede());
 
         // Crear la nueva entrada con sector "CAMPO"
         Entrada nuevaEntrada = new Entrada(

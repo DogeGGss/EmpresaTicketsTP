@@ -161,5 +161,4 @@ public class Principal {
 		System.out.println(ticketek);
 		System.out.println("\n==========================================\n");
 	}
-
 }

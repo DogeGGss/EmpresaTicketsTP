@@ -2,9 +2,6 @@ package ar.edu.ungs.prog2.ticketek;
 
 public class SedeConPlatea extends Sede {
     protected int[] porcentajeAdicional;
-    //protected int[] asientos;
-    //protected int[] codigos_entradas;
-    protected int[] porcentajePlateas;
     protected String[] sectores;
     protected int[] capacidades;
 
@@ -14,10 +11,6 @@ public class SedeConPlatea extends Sede {
         this.sectores = sectores;
         this.capacidades = capacidades;
         this.porcentajeAdicional = porcentajeAdicional;
-        int totalAsientos = 0;
-        for (int cap : capacidades) totalAsientos += cap;
-        //this.asientos = new int[totalAsientos];
-        //this.codigos_entradas = new int[totalAsientos];
     }
 
     public double getPorcentaje(String platea) {
